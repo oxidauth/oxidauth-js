@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/oxidauth/client-js/issues"
   },
-  "homepage": "https://github.com/oxidauth/client-js#readme"
+  "homepage": "https://github.com/oxidauth/client-js#readme",
+  "dependencies": {
+    "jose": "^5.2.1"
+  }
 }
