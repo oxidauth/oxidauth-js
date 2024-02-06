@@ -12,7 +12,7 @@ export class OxidAuthClient {
     constructor(host, opts = DEFAULT_OPTS) {
         this._host = host
         this._opts = opts
-        this._storage = opts.storage ?? new LocalStorage()
+        this._storage = opts.storage || new LocalStorage()
 
         this._public_keys_exp_at = null
         this._token = null
