@@ -25,6 +25,12 @@ export class OxidAuthClient {
         return await this.validateToken()
     }
 
+    async fetchValidJWT() {
+        await this.validateToken()
+
+        return this._token
+    }
+
     async validateToken() {
         const public_keys = await this.get_public_keys()
 
@@ -49,8 +55,6 @@ export class OxidAuthClient {
             }
         })
 
-        console.log(public_keys, this)
-
         return await Promise.any(promises)
     }
 
@@ -71,7 +75,7 @@ export class OxidAuthClient {
             body,
         }
 
-        const { jwt, refresh_token } = fetch(url, opts)
+        const { jwt, refresh_token } = await fetch(url, opts)
             .then((res) => res.json())
             .then((res) => {
                 if (res.success === false) {
@@ -84,18 +88,14 @@ export class OxidAuthClient {
                 throw new OxidAuthError('FETCH_PUBLIC_KEYS_ERR', err)
             })
 
-        // console.log('saving values', jwt, refresh)
-
         await this.set_token(jwt)
-        await this.refresh_token(refresh_token)
+        await this.set_refresh_token(refresh_token)
 
-        return jwt
+        return await this.fetchValidToken()
     }
 
     async verifyToken(key) {
         const token = await this.get_token()
-
-        console.log('verifyToken token', token)
 
         if (token) {
             const { payload } = await jose.jwtVerify(token, key)
@@ -124,27 +124,19 @@ export class OxidAuthClient {
             .then((res) => res.json())
             .then((res) => {
                 if (res.success === false) {
-                    console.log('failed auth', res?.errors)
-
                     throw new OxidAuthError('AUTHENTICATE_ERR', res?.errors)
                 }
 
                 return res.payload
             })
             .catch((err) => {
-                console.log('failed auth request', err)
-
                 throw new OxidAuthError('AUTHENTICATE_ERR', err)
             })
-
-        // console.log('saving values', jwt, refresh_token)
 
         await this.set_token(jwt)
         await this.set_refresh_token(refresh_token)
 
         const token = await this.get_token()
-
-        console.log('should exist', token)
 
         return jwt
     }
@@ -171,11 +163,7 @@ export class OxidAuthClient {
     async get_public_keys() {
         let public_keys = await this._storage.get(PUBLIC_KEYS_KEY)
 
-        console.log('public_keys', public_keys)
-
         if (this?._public_keys_exp_at < new Date() || !public_keys) {
-            console.log('getting public_keys')
-
             let result = await this.fetchPublicKeys()
 
             await this._storage.set(PUBLIC_KEYS_KEY, result?.public_keys)
@@ -194,8 +182,6 @@ export class OxidAuthClient {
             if (!this._token) {
                 const token = await this._storage.get(TOKEN_KEY)
 
-                console.log('no local token -- checking storage', token)
-
                 this._token = token
             }
 
@@ -206,13 +192,7 @@ export class OxidAuthClient {
     }
 
     async set_token(value) {
-        console.log(this)
-
         await this._storage.set(TOKEN_KEY, value)
-
-        const token = await this._storage.get(TOKEN_KEY)
-
-        console.log('ck tok', token)
     }
 
     async get_refresh_token() {
