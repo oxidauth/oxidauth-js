@@ -1,0 +1,25 @@
+{
+  "name": "@oxidauth/oxidauth-js",
+  "version": "0.1.0",
+  "description": "JavaScript client for Oxidauth",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oxidauth/client-js.git"
+  },
+  "keywords": [
+    "oxidauth",
+    "auth",
+    "authentication",
+    "authorization"
+  ],
+  "author": "George Wheeler",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/oxidauth/client-js/issues"
+  },
+  "homepage": "https://github.com/oxidauth/client-js#readme"
+}
