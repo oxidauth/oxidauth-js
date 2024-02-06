@@ -168,7 +168,7 @@ export class OxidAuthClient {
             public_keys = result?.public_keys
 
             this._public_keys_exp_at =
-                Date.now() + ((this._opts?.public_keys_ttl_secs ?? DEFAULT_OPTS.public_keys_ttl_secs) * 60 * 1000)
+                Date.now() + ((this._opts?.public_keys_ttl_secs || DEFAULT_OPTS.public_keys_ttl_secs) * 60 * 1000)
         }
 
         return public_keys?.map((obj) => obj.public_key)
