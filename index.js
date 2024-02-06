@@ -9,16 +9,13 @@ const DEFAULT_OPTS = {
 }
 
 export class OxidAuthClient {
-    _host;
-    _token;
-    _opts;
-    _storage;
-    _public_keys_exp_at;
-
     constructor(host, opts = DEFAULT_OPTS) {
         this._host = host
-        this._storage = opts.storage ?? new LocalStorage()
         this._opts = opts
+        this._storage = opts.storage ?? new LocalStorage()
+
+        this._public_keys_exp_at = null
+        this._token = null
     }
 
     async fetchValidToken() {
