@@ -1,8 +1,8 @@
 import * as jose from 'jose'
 
-const TOKEN_KEY = 'OXIDAUTH_TOKEN_KEY'
-const REFRESH_TOKEN_KEY = 'OXIDAUTH_REFRESH_TOKEN_KEY'
-const PUBLIC_KEYS_KEY = 'OXIDAUTH_PUBLIC_KEYS_KEY'
+const TOKEN_KEY = 'OXIDAUTH_TOKEN'
+const REFRESH_TOKEN_KEY = 'OXIDAUTH_REFRESH_TOKEN'
+const PUBLIC_KEYS_KEY = 'OXIDAUTH_PUBLIC_KEYS'
 
 const DEFAULT_OPTS = {
     public_keys_ttl_secs: 120,
@@ -189,6 +189,8 @@ export class OxidAuthClient {
     }
 
     async set_token(value) {
+        this._token = value
+
         await this._storage.set(TOKEN_KEY, value)
     }
 
