@@ -208,7 +208,7 @@ class LocalStorage {
         try {
             const raw = localStorage.getItem(key)
 
-            if (!row) {
+            if (!raw) {
                 return undefined
             }
 
