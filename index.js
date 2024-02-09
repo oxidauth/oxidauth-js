@@ -138,6 +138,13 @@ export class OxidAuthClient {
         return jwt
     }
 
+    async clearToken() {
+        await this._storage.reset()
+
+        this._public_keys_exp_at = null
+        this._token = null
+    }
+
     async fetchPublicKeys() {
         const url = `${this._host}/api/v1/public_keys`
 
@@ -235,6 +242,16 @@ class LocalStorage {
             localStorage.removeItem(key)
         } catch (err) {
             throw new OxidAuthError('STORAGE_REMOVE_ERR', err)
+        }
+    }
+
+    async reset() {
+        try {
+            this.remove(TOKEN_KEY)
+            this.remove(PUBLIC_KEYS_KEY)
+            this.remove(REFRESH_TOKEN_KEY)
+        } catch (err) {
+            throw new OxidAuthError('STORAGE_RESET_ERR', err)
         }
     }
 }
