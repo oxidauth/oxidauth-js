@@ -3,6 +3,7 @@ import * as jose from 'jose'
 const TOKEN_KEY = 'OXIDAUTH_TOKEN'
 const REFRESH_TOKEN_KEY = 'OXIDAUTH_REFRESH_TOKEN'
 const PUBLIC_KEYS_KEY = 'OXIDAUTH_PUBLIC_KEYS'
+const OXIDAUTH_MUTEX_KEY = 'OXIDAUTH_MUTEX_KEY'
 
 const DEFAULT_OPTS = {
     public_keys_ttl_secs: 120,
@@ -14,8 +15,11 @@ export class OxidAuthClient {
         this._opts = opts
         this._storage = opts.storage || new LocalStorage()
 
+        this.unlock()
+
         this._public_keys_exp_at = null
         this._token = null
+        this._locked = false
     }
 
     async fetchValidToken() {
@@ -56,7 +60,13 @@ export class OxidAuthClient {
 
                     console.log("attempting to exchange refresh token")
 
-                    return await this.exchangeToken()
+                    await this.lock()
+
+                    const result =  await this.exchangeToken()
+
+                    await this.unlock()
+
+                    return result
                 } else {
                     throw new OxidAuthError('TOKEN_NOT_VALID', err)
                 }
@@ -224,6 +234,38 @@ export class OxidAuthClient {
 
     async set_refresh_token(value) {
         return await this._storage.set(REFRESH_TOKEN_KEY, value)
+    }
+
+    async wait(depth = 30) {
+        console.log("waiting", depth)
+
+        if (depth == 0) return false
+
+        if (await this.isLocked()) {
+            setTimeout(async () => {
+                await this.wait(depth - 1)
+            }, 250)
+        }
+
+        return true
+    }
+
+    async lock() {
+        if (await this.isLocked()) {
+            if (!await this.wait()) {
+                throw new OxidAuthError('MUTEX_LOCK_ERR', "failed to get mutex")
+            }
+        }
+
+        return await this._storage.set(OXIDAUTH_MUTEX_KEY, true)
+    }
+
+    async isLocked() {
+        return await this._storage.get(OXIDAUTH_MUTEX_KEY)
+    }
+
+    async unlock() {
+        return await this._storage.set(OXIDAUTH_MUTEX_KEY, false)
     }
 }
 
