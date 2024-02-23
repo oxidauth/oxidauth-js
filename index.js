@@ -49,10 +49,13 @@ export class OxidAuthClient {
             try {
                 return await this.verifyToken(public_key)
             } catch (err) {
+                console.log("error verifying token", err)
+
                 if (`${err}`.includes('JWTExpired')) {
                     console.log("JWT seems to be expired", err)
 
                     console.log("attempting to exchange refresh token")
+
                     return await this.exchangeToken()
                 } else {
                     throw new OxidAuthError('TOKEN_NOT_VALID', err)
