@@ -52,7 +52,13 @@ export class OxidAuthClient {
             }
         })
 
-        return await Promise.any(promises)
+        try {
+            const results = await Promise.any(promises)
+
+            return results
+        } catch (err) {
+            throw new OxidAuthError('VALIDATE_TOKEN_ERR', err)
+        }
     }
 
     async exchangeToken() {
