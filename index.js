@@ -237,9 +237,13 @@ export class OxidAuthClient {
     }
 
     async wait(depth = 30) {
-        console.log("waiting", depth)
+        console.log("waiting...", depth)
 
-        if (depth == 0) return false
+        if (depth == 0) {
+            console.log("wait depth is 0")
+
+            return false
+        }
 
         if (await this.isLocked()) {
             setTimeout(async () => {
@@ -251,7 +255,11 @@ export class OxidAuthClient {
     }
 
     async lock() {
+        console.log("attempting to lock mutex")
+
         if (await this.isLocked()) {
+            console.log("mutex is already locked")
+
             if (!await this.wait()) {
                 throw new OxidAuthError('MUTEX_LOCK_ERR', "failed to get mutex")
             }
