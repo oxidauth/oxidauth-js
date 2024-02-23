@@ -51,7 +51,7 @@ export class OxidAuthClient {
             } catch (err) {
                 console.log("error verifying token", err)
 
-                if (`${err}`.includes('JWTExpired')) {
+                if (`${err}`.includes('"exp" claim timestamp check failed')) {
                     console.log("JWT seems to be expired", err)
 
                     console.log("attempting to exchange refresh token")
