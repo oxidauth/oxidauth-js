@@ -29,9 +29,14 @@ export class OxidAuthClient {
     }
 
     async validateToken() {
+        console.log("starting to validate token")
+        console.log("fetching public keys")
         const public_keys = await this.get_public_keys()
 
+        console.log("checking public keys for match")
         const promises = public_keys.map(async (key) => {
+            console.log("checking key", key)
+
             let public_key;
 
             try {
@@ -45,6 +50,9 @@ export class OxidAuthClient {
                 return await this.verifyToken(public_key)
             } catch (err) {
                 if (`${err}`.includes('JWTExpired')) {
+                    console.log("JWT seems to be expired", err)
+
+                    console.log("attempting to exchange refresh token")
                     return await this.exchangeToken()
                 } else {
                     throw new OxidAuthError('TOKEN_NOT_VALID', err)
@@ -265,6 +273,8 @@ class LocalStorage {
 export class OxidAuthError extends Error {
     constructor(type, err) {
         super(err)
+
+        console.log("OxidauthError", type, err)
 
         this.name = type
         this.message = err
