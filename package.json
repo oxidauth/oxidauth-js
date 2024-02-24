@@ -1,6 +1,6 @@
 {
   "name": "@oxidauth/oxidauth-js",
-  "version": "0.120",
+  "version": "0.1.20",
   "description": "JavaScript client for Oxidauth",
   "main": "index.js",
   "type": "module",
