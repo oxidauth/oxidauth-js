@@ -135,6 +135,8 @@ export class OxidAuthClient {
         await this.set_token(jwt)
         await this.set_refresh_token(refresh_token)
 
+        await this.unlock()
+
         return await this.fetchValidToken()
     }
 
