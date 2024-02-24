@@ -72,9 +72,13 @@ export class OxidAuthClient {
 
                     await this.lock()
 
-                    const result = await this.exchangeToken()
-
-                    await this.unlock()
+                    try {
+                        const result = await this.exchangeToken()
+                    } catch(err) {
+                        throw new OxidAuthError('TOKEN_NOT_VALID', err)
+                    } finally {
+                        await this.unlock()
+                    }
 
                     return result
                 } else {
