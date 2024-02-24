@@ -33,6 +33,16 @@ export class OxidAuthClient {
     }
 
     async validateToken() {
+        if (await this.isLocked()) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    this.validateToken()
+                        .then((result) => resolve(result))
+                        .catch((err) => reject(err))
+                }, 250)
+            })
+        }
+
         console.log("starting to validate token")
         console.log("fetching public keys")
         const public_keys = await this.get_public_keys()
@@ -59,16 +69,6 @@ export class OxidAuthClient {
                     console.log("JWT seems to be expired", err)
 
                     console.log("attempting to exchange refresh token")
-
-                    if (await this.isLocked()) {
-                        return new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                this.validateToken()
-                                    .then((result) => resolve(result))
-                                    .catch((err) => reject(err))
-                            }, 250)
-                        })
-                    }
 
                     await this.lock()
 
