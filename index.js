@@ -254,7 +254,7 @@ export class OxidAuthClient {
         return await this._storage.set(REFRESH_TOKEN_KEY, value)
     }
 
-    async wait(depth = 30) {
+    async wait(depth = 300) {
         console.log("waiting...", depth)
 
         if (depth == 0) {
@@ -264,9 +264,13 @@ export class OxidAuthClient {
         }
 
         if (await this.isLocked()) {
-            setTimeout(async () => {
-                await this.wait(depth - 1)
-            }, 250)
+            return new Promise((resolve) => {
+                setTimeout(async () => {
+                    await this.wait(depth - 1)
+
+                    resolve(true)
+                }, 50)
+            })
         }
 
         return true
