@@ -11,6 +11,7 @@ const DEFAULT_OPTS = {
 
 export class OxidAuthClient {
     constructor(host, opts = DEFAULT_OPTS) {
+        console.log("in the constructor")
         this._host = host
         this._opts = opts
         this._storage = opts.storage || new LocalStorage()
@@ -55,7 +56,6 @@ export class OxidAuthClient {
 
             try {
                 public_key = await jose.importSPKI(key, 'RS256')
-
             } catch (err) {
                 throw new OxidAuthError('IMPORT_SPKI_ERR', err)
             }
@@ -76,9 +76,11 @@ export class OxidAuthClient {
 
                     try {
                         result = await this.exchangeToken()
+                        console.log("verifyToken try ::: ", result)
                     } catch(err) {
                         throw new OxidAuthError('TOKEN_NOT_VALID', err)
                     } finally {
+                        console.log("verifyToken reached finally")
                         await this.unlock()
                     }
 
@@ -178,7 +180,7 @@ export class OxidAuthClient {
         await this.set_token(jwt)
         await this.set_refresh_token(refresh_token)
 
-        const token = await this.get_token()
+        await this.get_token()
 
         return jwt
     }
@@ -254,7 +256,7 @@ export class OxidAuthClient {
         return await this._storage.set(REFRESH_TOKEN_KEY, value)
     }
 
-    async wait(depth = 300) {
+    async wait(depth = 600) {
         console.log("waiting...", depth)
 
         if (depth == 0) {
@@ -287,6 +289,7 @@ export class OxidAuthClient {
             }
         }
 
+        console.log("mutex locked")
         return await this._storage.set(OXIDAUTH_MUTEX_KEY, true)
     }
 
@@ -295,6 +298,7 @@ export class OxidAuthClient {
     }
 
     async unlock() {
+        console.log("unlocking")
         return await this._storage.set(OXIDAUTH_MUTEX_KEY, false)
     }
 }
