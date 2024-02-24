@@ -60,9 +60,19 @@ export class OxidAuthClient {
 
                     console.log("attempting to exchange refresh token")
 
+                    if (await this.isLocked()) {
+                        return new Promise((resolve, reject) => {
+                            setTimeout(() => {
+                                this.validateToken()
+                                    .then((result) => resolve(result))
+                                    .catch((err) => reject(err))
+                            }, 250)
+                        })
+                    }
+
                     await this.lock()
 
-                    const result =  await this.exchangeToken()
+                    const result = await this.exchangeToken()
 
                     await this.unlock()
 
@@ -81,6 +91,8 @@ export class OxidAuthClient {
             throw new OxidAuthError('VALIDATE_TOKEN_ERR', err)
         }
     }
+
+
 
     async exchangeToken() {
         const url = `${this._host}/api/v1/refresh_tokens`
