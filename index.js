@@ -11,7 +11,6 @@ const DEFAULT_OPTS = {
 
 export class OxidAuthClient {
     constructor(host, opts = DEFAULT_OPTS) {
-        console.log("in the constructor")
         this._host = host
         this._opts = opts
         this._storage = opts.storage || new LocalStorage()
@@ -44,13 +43,9 @@ export class OxidAuthClient {
             })
         }
 
-        console.log("starting to validate token")
-        console.log("fetching public keys")
         const public_keys = await this.get_public_keys()
 
-        console.log("checking public keys for match")
         const promises = public_keys.map(async (key) => {
-            console.log("checking key", key)
 
             let public_key;
 
@@ -63,7 +58,6 @@ export class OxidAuthClient {
             try {
                 return await this.verifyToken(public_key)
             } catch (err) {
-                console.log("error verifying token", err)
 
                 if (`${err}`.includes('"exp" claim timestamp check failed')) {
                     console.log("JWT seems to be expired", err)
@@ -76,11 +70,9 @@ export class OxidAuthClient {
 
                     try {
                         result = await this.exchangeToken()
-                        console.log("verifyToken try ::: ", result)
                     } catch(err) {
                         throw new OxidAuthError('TOKEN_NOT_VALID', err)
                     } finally {
-                        console.log("verifyToken reached finally")
                         await this.unlock()
                     }
 
@@ -259,11 +251,7 @@ export class OxidAuthClient {
     }
 
     async wait(depth = 600) {
-        console.log("waiting...", depth)
-
         if (depth == 0) {
-            console.log("wait depth is 0")
-
             return false
         }
 
@@ -281,17 +269,12 @@ export class OxidAuthClient {
     }
 
     async lock() {
-        console.log("attempting to lock mutex")
-
         if (await this.isLocked()) {
-            console.log("mutex is already locked")
-
             if (!await this.wait()) {
                 throw new OxidAuthError('MUTEX_LOCK_ERR', "failed to get mutex")
             }
         }
 
-        console.log("mutex locked")
         return await this._storage.set(OXIDAUTH_MUTEX_KEY, true)
     }
 
@@ -300,7 +283,6 @@ export class OxidAuthClient {
     }
 
     async unlock() {
-        console.log("unlocking")
         return await this._storage.set(OXIDAUTH_MUTEX_KEY, false)
     }
 }
