@@ -142,40 +142,44 @@ export class OxidAuthClient {
         }
     }
 
-    async authUsernamePassword(client_key, username, password) {
-        const url = `${this._host}/api/v1/auth/authenticate`
-
-        const body = JSON.stringify({
-            client_key: client_key,
-            params: { username, password },
-        })
-
-        const opts = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body,
-        }
-
-        const { jwt, refresh_token } = await fetch(url, opts)
-            .then((res) => res.json())
-            .then((res) => {
-                if (res.success === false) {
-                    throw new OxidAuthError('AUTHENTICATE_ERR', res?.errors)
-                }
-
-                return res.payload
-            })
-            .catch((err) => {
-                throw new OxidAuthError('AUTHENTICATE_ERR', err)
-            })
-
-        await this.setToken(jwt)
-        await this.setRefreshToken(refresh_token)
-
-        await this.getToken()
-
-        return jwt
+    buildUsernamePassword(client_key) {
+      return new UsernamePassword(this, client_key)
     }
+
+    // async authUsernamePassword(client_key, username, password) {
+    //     const url = `${this._host}/api/v1/auth/authenticate`
+
+    //     const body = JSON.stringify({
+    //         client_key,
+    //         params: { username, password },
+    //     })
+
+    //     const opts = {
+    //         method: 'POST',
+    //         headers: { 'Content-Type': 'application/json' },
+    //         body,
+    //     }
+
+    //     const { jwt, refresh_token } = await fetch(url, opts)
+    //         .then((res) => res.json())
+    //         .then((res) => {
+    //             if (res.success === false) {
+    //                 throw new OxidAuthError('AUTHENTICATE_ERR', res?.errors)
+    //             }
+
+    //             return res.payload
+    //         })
+    //         .catch((err) => {
+    //             throw new OxidAuthError('AUTHENTICATE_ERR', err)
+    //         })
+
+    //     await this.setToken(jwt)
+    //     await this.setRefreshToken(refresh_token)
+
+    //     await this.getToken()
+
+    //     return jwt
+    // }
 
     async clearToken() {
         await this._storage.reset()
@@ -340,4 +344,46 @@ export class OxidAuthError extends Error {
         this.name = type
         this.message = err
     }
+}
+
+export class UsernamePassword {
+  constructor(client, client_key) {
+    this._client = client
+    this._client_key = client_key
+  }
+
+  async authenticate(username, password) {
+    const url = `${this._client._host}/api/v1/auth/authenticate`
+
+    const body = JSON.stringify({
+        client_key: this._client_key,
+        params: { username, password },
+    })
+
+    const opts = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+    }
+
+    const { jwt, refresh_token } = await fetch(url, opts)
+        .then((res) => res.json())
+        .then((res) => {
+            if (res.success === false) {
+                throw new OxidAuthError('AUTHENTICATE_ERR', res?.errors)
+            }
+
+            return res.payload
+        })
+        .catch((err) => {
+            throw new OxidAuthError('AUTHENTICATE_ERR', err)
+        })
+
+    await this._client.setToken(jwt)
+    await this._client.setRefreshToken(refresh_token)
+
+    await this._client.getToken()
+
+    return jwt
+  }
 }
