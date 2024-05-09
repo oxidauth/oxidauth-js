@@ -22,6 +22,10 @@ export class OxidAuthClient {
         this._locked = false
     }
 
+    buildUsernamePassword(client_key) {
+      return new UsernamePassword(this, client_key)
+    }
+
     async fetchValidToken() {
         return await this.validateToken()
     }
@@ -43,29 +47,24 @@ export class OxidAuthClient {
             })
         }
 
-        const public_keys = await this.getPublicKeys()
+        const publicKeys = await this.getPublicKeys()
 
-        const promises = public_keys.map(async (key) => {
+        const promises = publicKeys.map(async (key) => {
 
-            let public_key;
+            let publicKey;
 
             try {
-                public_key = await jose.importSPKI(key, 'RS256')
+              publicKey = await jose.importSPKI(key, 'RS256')
             } catch (err) {
                 throw new OxidAuthError('IMPORT_SPKI_ERR', err)
             }
 
             try {
-                return await this.verifyToken(public_key)
+                return await this.verifyToken(publicKey)
             } catch (err) {
 
                 if (`${err}`.includes('"exp" claim timestamp check failed')) {
-                    console.log("JWT seems to be expired", err)
-
-                    console.log("attempting to exchange refresh token")
-
                     await this.lock()
-
                     let result
 
                     try {
@@ -95,13 +94,13 @@ export class OxidAuthClient {
     async exchangeToken() {
         const url = `${this._host}/api/v1/refresh_tokens`
 
-        const old_refresh_token = await this.getRefreshToken()
+        const oldRefreshToken = await this.getRefreshToken()
 
-        if (!old_refresh_token) {
+        if (!oldRefreshToken) {
             throw new OxidAuthError('NO_REFRESH_TOKEN_FOR_EXCHANGE', 'no refresh token found')
         }
 
-        const body = JSON.stringify({ refresh_token: old_refresh_token })
+        const body = JSON.stringify({ refresh_token: oldRefreshToken })
 
         const opts = {
             method: 'POST',
@@ -109,7 +108,7 @@ export class OxidAuthClient {
             body,
         }
 
-        const { jwt, refresh_token } = await fetch(url, opts)
+        const { jwt, refreshToken } = await fetch(url, opts)
             .then((res) => res.json())
             .then((res) => {
                 if (res.success === false) {
@@ -123,7 +122,7 @@ export class OxidAuthClient {
             })
 
         await this.setToken(jwt)
-        await this.setRefreshToken(refresh_token)
+        await this.setRefreshToken(refreshToken)
 
         await this.unlock()
 
@@ -140,10 +139,6 @@ export class OxidAuthClient {
         } else {
             throw new OxidAuthError('NO_TOKEN_FOUND_ERR', 'no token was found, you may need to authenticate first')
         }
-    }
-
-    buildUsernamePassword(client_key) {
-      return new UsernamePassword(this, client_key)
     }
 
     async clearToken() {
@@ -173,20 +168,20 @@ export class OxidAuthClient {
     }
 
     async getPublicKeys() {
-        let public_keys = await this._storage.get(PUBLIC_KEYS_KEY)
+        let publicKeys = await this._storage.get(PUBLIC_KEYS_KEY)
 
-        if (this?._public_keys_exp_at < new Date() || !public_keys) {
+        if (this?._public_keys_exp_at < new Date() || !publicKeys) {
             let result = await this.fetchPublicKeys()
 
-            await this._storage.set(PUBLIC_KEYS_KEY, result?.public_keys)
+            await this._storage.set(PUBLIC_KEYS_KEY, result?.publicKeys)
 
-            public_keys = result?.public_keys
+            publicKeys = result?.publicKeys
 
             this._public_keys_exp_at =
                 Date.now() + ((this._opts?.public_keys_ttl_secs || DEFAULT_OPTS.public_keys_ttl_secs) * 60 * 1000)
         }
 
-        return public_keys?.map((obj) => obj.public_key)
+        return publicKeys?.map((obj) => obj.public_key)
     }
 
     async getToken() {
@@ -312,16 +307,16 @@ export class OxidAuthError extends Error {
 }
 
 export class UsernamePassword {
-  constructor(client, client_key) {
+  constructor(client, clientKey) {
     this._client = client
-    this._client_key = client_key
+    this._clientKey = clientKey
   }
 
   async authenticate(username, password) {
     const url = `${this._client._host}/api/v1/auth/authenticate`
 
     const body = JSON.stringify({
-        client_key: this._client_key,
+        client_key: this._clientKey,
         params: { username, password },
     })
 
@@ -343,6 +338,43 @@ export class UsernamePassword {
         .catch((err) => {
             throw new OxidAuthError('AUTHENTICATE_ERR', err)
         })
+
+    await this._client.setToken(jwt)
+    await this._client.setRefreshToken(refresh_token)
+
+    await this._client.getToken()
+
+    return jwt
+  }
+
+  async validateEmailCode(code) {
+    const url = `${this._client._host}/api/v1/totp/validate`
+
+    const body = JSON.stringify({
+      params: { code },
+    })
+
+    const opts = {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwt}`,
+      },
+      body,
+    }
+
+    const { jwt, refresh_token } = await fetch(url, opts)
+    .then((res) => res.json())
+    .then((res) => {
+        if (res.success === false) {
+            throw new OxidAuthError('AUTHENTICATE_ERR', res?.errors)
+        }
+
+        return res.payload
+    })
+    .catch((err) => {
+        throw new OxidAuthError('AUTHENTICATE_ERR', err)
+    })
 
     await this._client.setToken(jwt)
     await this._client.setRefreshToken(refresh_token)
