@@ -351,7 +351,7 @@ export class UsernamePassword {
     const oldJwt = await this._client.getToken()
 
     const body = JSON.stringify({
-      params: { code },
+      code,
     })
 
     console.log("CLIENT JS GOT CODE :: ", code)
