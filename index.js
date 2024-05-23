@@ -348,6 +348,7 @@ export class UsernamePassword {
 
   async validateEmailCode(code) {
     const url = `${this._client._host}/api/v1/totp/validate`
+    const oldJwt = await this._client.getToken()
 
     const body = JSON.stringify({
       params: { code },
@@ -359,7 +360,7 @@ export class UsernamePassword {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${jwt}`,
+        'Authorization': `Bearer ${oldJwt}`,
       },
       body,
     }
