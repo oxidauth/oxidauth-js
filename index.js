@@ -354,6 +354,8 @@ export class UsernamePassword {
       params: { code },
     })
 
+    console.log("CLIENT JS GOT CODE :: ", code)
+
     const opts = {
       method: 'POST',
       headers: { 
