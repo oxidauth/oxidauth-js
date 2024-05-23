@@ -50,7 +50,6 @@ export class OxidAuthClient {
         const publicKeys = await this.getPublicKeys()
 
         const promises = publicKeys.map(async (key) => {
-
             let publicKey;
 
             try {
@@ -173,9 +172,9 @@ export class OxidAuthClient {
         if (this?._public_keys_exp_at < new Date() || !publicKeys) {
             let result = await this.fetchPublicKeys()
 
-            await this._storage.set(PUBLIC_KEYS_KEY, result?.publicKeys)
+            await this._storage.set(PUBLIC_KEYS_KEY, result?.public_keys)
 
-            publicKeys = result?.publicKeys
+            publicKeys = result?.public_keys
 
             this._public_keys_exp_at =
                 Date.now() + ((this._opts?.public_keys_ttl_secs || DEFAULT_OPTS.public_keys_ttl_secs) * 60 * 1000)
