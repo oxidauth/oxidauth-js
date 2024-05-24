@@ -355,8 +355,6 @@ export class UsernamePassword {
       client_key: this._clientKey,
     })
 
-    console.log("CLIENT JS GOT CODE :: ", code)
-
     const opts = {
       method: 'POST',
       headers: { 
