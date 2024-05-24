@@ -352,6 +352,7 @@ export class UsernamePassword {
 
     const body = JSON.stringify({
       code,
+      client_key: this._clientKey,
     })
 
     console.log("CLIENT JS GOT CODE :: ", code)
