@@ -50,6 +50,7 @@ export class OxidAuthClient {
         const publicKeys = await this.getPublicKeys()
 
         const promises = publicKeys.map(async (key) => {
+
             let publicKey;
 
             try {
@@ -107,7 +108,7 @@ export class OxidAuthClient {
             body,
         }
 
-        const { jwt, refreshToken } = await fetch(url, opts)
+        const { jwt, refresh_token } = await fetch(url, opts)
             .then((res) => res.json())
             .then((res) => {
                 if (res.success === false) {
@@ -121,7 +122,7 @@ export class OxidAuthClient {
             })
 
         await this.setToken(jwt)
-        await this.setRefreshToken(refreshToken)
+        await this.setRefreshToken(refresh_token)
 
         await this.unlock()
 
@@ -337,7 +338,7 @@ export class UsernamePassword {
         .catch((err) => {
             throw new OxidAuthError('AUTHENTICATE_ERR', err)
         })
-
+    
     await this._client.setToken(jwt)
     await this._client.setRefreshToken(refresh_token)
 
