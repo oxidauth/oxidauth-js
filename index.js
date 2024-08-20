@@ -118,7 +118,7 @@ export class OxidAuthClient {
                 return res.payload
             })
             .catch((err) => {
-                throw new OxidAuthError('FETCH_PUBLIC_KEYS_ERR', err)
+                throw new OxidAuthError('EXCHANGE_REFRESH_TOKEN_ERR', err)
             })
 
         await this.setToken(jwt)
@@ -246,6 +246,29 @@ export class OxidAuthClient {
 
     async unlock() {
         return await this._storage.set(OXIDAUTH_MUTEX_KEY, false)
+    }
+
+    async checkPermission(permission) {
+        const url = `${this._host}/api/v1/can/${permission}`
+
+        if (!permission) {
+            throw new OxidAuthError('NO_PERMISSION_TO_CHECK', 'no permission provided to check against')
+        }
+
+        const opts = { headers: { 'Content-Type': 'application/json' } }
+
+        return fetch(url, opts)
+            .then((res) => res.json())
+            .then((res) => {
+                if (res.success === false) {
+                    throw new OxidAuthError('CHECK_PERMISSION_ERR', res?.errors)
+                }
+
+                return res.payload
+            })
+            .catch((err) => {
+                throw new OxidAuthError('CHECK_PERMISSION_ERR', err)
+            })
     }
 }
 
