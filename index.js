@@ -255,7 +255,17 @@ export class OxidAuthClient {
             throw new OxidAuthError('NO_PERMISSION_TO_CHECK', 'no permission provided to check against')
         }
 
-        const opts = { headers: { 'Content-Type': 'application/json' } }
+        const headers = {
+            'Content-Type': 'application/json',
+        }
+
+        const token = await this.fetchValidJWT()
+
+        if (token !== undefined && token !== null && token.trim() !== '') {
+            headers['Authorization'] = `Bearer ${token}`
+        }
+
+        const opts = { headers }
 
         return fetch(url, opts)
             .then((res) => res.json())
