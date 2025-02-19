@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "yarn prettier --write ."
   },
   "repository": {
     "type": "git",
@@ -25,5 +26,8 @@
   "homepage": "https://github.com/oxidauth/oxidauth-js#readme",
   "dependencies": {
     "jose": "^5.2.1"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.8"
   }
 }
