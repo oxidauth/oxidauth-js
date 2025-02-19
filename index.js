@@ -58,20 +58,20 @@ export class OxidAuthClient {
 
       try {
         publicKey = await jose.importSPKI(key, 'RS256')
-      } catch (err) {
+      } catch(err) {
         throw new OxidAuthError('IMPORT_SPKI_ERR', err)
       }
 
       try {
         return await this.verifyToken(publicKey)
-      } catch (err) {
+      } catch(err) {
         if (`${err}`.includes("'exp' claim timestamp check failed")) {
           await this.lock()
           let result
 
           try {
             result = await this.exchangeToken()
-          } catch (err) {
+          } catch(err) {
             throw new OxidAuthError('TOKEN_NOT_VALID', err)
           } finally {
             await this.unlock()
@@ -88,7 +88,7 @@ export class OxidAuthClient {
       const results = await Promise.any(promises)
 
       return results
-    } catch (err) {
+    } catch(err) {
       throw new OxidAuthError('VALIDATE_TOKEN_ERR', err)
     }
   }
@@ -197,7 +197,7 @@ export class OxidAuthClient {
       }
 
       return this._token
-    } catch (_) {
+    } catch(_) {
       return undefined
     }
   }
@@ -264,10 +264,10 @@ class LocalStorage {
 
       try {
         return JSON.parse(raw)
-      } catch (err) {
+      } catch(err) {
         return undefined
       }
-    } catch (err) {
+    } catch(err) {
       throw new OxidAuthError('STORAGE_GET_ERR', err)
     }
   }
@@ -275,7 +275,7 @@ class LocalStorage {
   async set(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value))
-    } catch (err) {
+    } catch(err) {
       throw new OxidAuthError('STORAGE_SET_ERR', err)
     }
   }
@@ -283,7 +283,7 @@ class LocalStorage {
   async remove(key) {
     try {
       localStorage.removeItem(key)
-    } catch (err) {
+    } catch(err) {
       throw new OxidAuthError('STORAGE_REMOVE_ERR', err)
     }
   }
@@ -293,7 +293,7 @@ class LocalStorage {
       this.remove(TOKEN_KEY)
       this.remove(PUBLIC_KEYS_KEY)
       this.remove(REFRESH_TOKEN_KEY)
-    } catch (err) {
+    } catch(err) {
       throw new OxidAuthError('STORAGE_RESET_ERR', err)
     }
   }
