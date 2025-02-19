@@ -406,11 +406,12 @@ export class Oauth2 {
     this._client = client;
   }
 
-  async redirect(client_key) {
+  async redirect(client_key, email) {
     const url = `${this._client._host}/api/v1/auth/oauth2/redirect`;
 
     const body = JSON.stringify({
       client_key,
+      email,
     });
 
     const opts = {
