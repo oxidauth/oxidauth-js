@@ -26,6 +26,10 @@ export class OxidAuthClient {
       return new UsernamePassword(this, client_key)
     }
 
+    buildOAuth2() {
+      return new OAuth2(this)
+    }
+
     async fetchValidToken() {
         return await this.validateToken()
     }
@@ -419,3 +423,40 @@ export class UsernamePassword {
     return jwt
   }
 }
+
+export class OAuth2 {
+  constructor(client) {
+      this._client = client
+  }
+
+  async redirect(client_key, email) {
+      const url = `${this._client._host}/api/v1/auth/oauth2/redirect`
+
+      const body = JSON.stringify({
+          client_key,
+          email,
+      })
+
+      const opts = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body,
+      }
+
+      const { redirect } = await fetch(url, opts)
+          .then((res) => res.json())
+          .then((res) => {
+              if (res.success === false) {
+                  throw new OxidAuthError('AUTHENTICATE_ERR', res?.errors)
+              }
+
+              return res.payload
+          })
+          .catch((err) => {
+              throw new OxidAuthError('AUTHENTICATE_ERR', err)
+          })
+
+      return redirect
+  }
+}
+
