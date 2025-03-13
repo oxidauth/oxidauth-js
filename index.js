@@ -65,7 +65,11 @@ export class OxidAuthClient {
             try {
                 return await this.verifyToken(publicKey)
             } catch (err) {
-                if (`${err}`.includes("'exp' claim timestamp check failed")) {
+                let log = `${err}`.includes(`"exp" claim timestamp check failed`)
+                console.log("DOES ERR INCLUDE MESSAGE :: ", err, log)
+
+                if (`${err}`.includes(`"exp" claim timestamp check failed`)) {
+                    console.log("FOUND MATCH")
                     await this.lock()
                     let result
 
@@ -93,7 +97,7 @@ export class OxidAuthClient {
         }
     }
 
-    async exchangeToken(oldRefreshToken = null) {
+    async exchangeToken() {
         const url = `${this._host}/api/v1/refresh_tokens`
 
         if (oldRefreshToken == null) {
@@ -122,7 +126,7 @@ export class OxidAuthClient {
                 return res.payload
             })
             .catch((err) => {
-                throw new OxidAuthError('FETCH_PUBLIC_KEYS_ERR', err)
+                throw new OxidAuthError('EXCHANGE_REFRESH_TOKEN_ERR', err)
             })
 
         await this.setToken(jwt)
