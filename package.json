@@ -1,33 +1,33 @@
 {
-  "name": "@oxidauth/oxidauth-js",
-  "version": "0.2.0",
-  "description": "JavaScript client for Oxidauth",
-  "main": "index.js",
-  "type": "module",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "yarn prettier --write ."
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/oxidauth/oxidauth-js.git"
-  },
-  "keywords": [
-    "oxidauth",
-    "auth",
-    "authentication",
-    "authorization"
-  ],
-  "author": "George Wheeler",
-  "license": "UNLICENSED",
-  "bugs": {
-    "url": "https://github.com/oxidauth/oxidauth-js/issues"
-  },
-  "homepage": "https://github.com/oxidauth/oxidauth-js#readme",
-  "dependencies": {
-    "jose": "^5.2.1"
-  },
-  "devDependencies": {
-    "prettier": "^2.8.8"
-  }
+    "name": "@oxidauth/oxidauth-js",
+    "version": "0.2.0",
+    "description": "JavaScript client for Oxidauth",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "format": "yarn prettier --write ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oxidauth/oxidauth-js.git"
+    },
+    "keywords": [
+        "oxidauth",
+        "auth",
+        "authentication",
+        "authorization"
+    ],
+    "author": "George Wheeler",
+    "license": "UNLICENSED",
+    "bugs": {
+        "url": "https://github.com/oxidauth/oxidauth-js/issues"
+    },
+    "homepage": "https://github.com/oxidauth/oxidauth-js#readme",
+    "dependencies": {
+        "jose": "^5.2.1"
+    },
+    "devDependencies": {
+        "prettier": "^2.8.8"
+    }
 }
