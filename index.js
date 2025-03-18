@@ -443,7 +443,7 @@ export class OAuth2 {
           body,
       }
 
-      const { redirect } = await fetch(url, opts)
+      const { redirect_url } = await fetch(url, opts)
           .then((res) => res.json())
           .then((res) => {
               if (res.success === false) {
@@ -456,7 +456,7 @@ export class OAuth2 {
               throw new OxidAuthError('AUTHENTICATE_ERR', err)
           })
 
-      return redirect
+      return redirect_url
   }
 }
 
